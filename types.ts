@@ -6,6 +6,7 @@ export type AppState = 'idle' | 'clarifying' | 'researching' | 'paused' | 'compl
 export type AgentRole = 'planner' | 'searcher' | 'synthesizer' | 'clarification' | 'visualizer' | 'outline' | 'roleAI';
 export type NotificationType = 'success' | 'error' | 'info' | 'warning';
 export type TranslationStyle = 'literal' | 'colloquial';
+export type ApiProvider = 'gemini' | 'openai';
 
 
 export interface Notification {
@@ -92,4 +93,25 @@ export interface HistoryItem {
   date: string; // ISO string
   initialSearchResult: { text: string; citations: Citation[] } | null;
   clarifiedContext: string;
+}
+
+export interface GenerateContentParams {
+  model: string;
+  contents: any;
+  config?: {
+    systemInstruction?: string;
+    temperature?: number;
+    maxOutputTokens?: number;
+    [key: string]: any;
+  };
+}
+
+export interface GenerateContentResponse {
+  text: string;
+  candidates?: any[];
+  [key: string]: any;
+}
+
+export interface AIClient {
+  generateContent(params: GenerateContentParams): Promise<GenerateContentResponse>;
 }

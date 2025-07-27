@@ -1,5 +1,6 @@
 
 import { apiKeyService, AllKeysFailedError } from "./apiKeyService";
+import { AIClient, GenerateContentParams, GenerateContentResponse } from "../types";
 
 // Helper to get a clean error message from various error types
 const getCleanErrorMessage = (error: any): string => {
@@ -178,13 +179,18 @@ async function executeWithRetry(operationName: string, params: any): Promise<any
     throw new AllKeysFailedError(`All API keys failed. Last error: ${finalErrorMessage}`);
 }
 
-// A simplified `ai` object that uses our fetch-based retry logic
-export const ai = {
-    models: {
-        generateContent: (params: any): Promise<any> => {
-            return executeWithRetry('generateContent', params);
-        },
-        // Other methods like generateContentStream, generateImages, and chats are not used
-        // by the app and are omitted to avoid implementing their fetch-based logic.
+class GeminiClient implements AIClient {
+    async generateContent(params: GenerateContentParams): Promise<GenerateContentResponse> {
+        return executeWithRetry('generateContent', params);
+    }
+}
+
+// A simplified `ai` object that uses our fetch-based retry logic and implements AIClient
+export const ai = new GeminiClient();
+
+// For backward compatibility, also export the models property
+(ai as any).models = {
+    generateContent: (params: any): Promise<any> => {
+        return executeWithRetry('generateContent', params);
     },
 };

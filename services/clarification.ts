@@ -1,4 +1,4 @@
-import { ai } from './geminiClient';
+import { ai } from './aiClient';
 import { getModel } from './models';
 import { parseJsonFromMarkdown } from './utils';
 import { ResearchMode, FileData, ClarificationTurn, Citation, Role } from '../types';

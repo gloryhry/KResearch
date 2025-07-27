@@ -70,12 +70,23 @@ class SettingsService {
     const allModelNames = new Set<string>();
     let lastError: any = null;
     const baseUrl = apiKeyService.getApiBaseUrl();
+    const provider = apiKeyService.getApiProvider();
 
     for (const key of apiKeys) {
         try {
-            const response = await fetch(`${baseUrl}/v1beta/models?pageSize=50`, {
-                headers: { 'x-goog-api-key': key }
-            });
+            let response: Response;
+            
+            if (provider === 'openai') {
+                // OpenAI models endpoint
+                response = await fetch(`${baseUrl}/v1/models`, {
+                    headers: { 'Authorization': `Bearer ${key}` }
+                });
+            } else {
+                // Gemini models endpoint
+                response = await fetch(`${baseUrl}/v1beta/models?pageSize=50`, {
+                    headers: { 'x-goog-api-key': key }
+                });
+            }
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
@@ -83,10 +94,20 @@ class SettingsService {
                 throw new Error(`Failed with key ending in ...${key.slice(-4)}: ${errorMessage}`);
             }
 
-            const data = await response.json() as { models?: { name: string }[] };
-            const modelNames = (data.models || [])
-                .map((m: { name: string }) => m.name.replace(/^models\//, ''))
-                .filter((name: string) => name.includes('gemini'));
+            const data = await response.json() as { models?: { name?: string; id?: string }[] };
+            let modelNames: string[];
+            
+            if (provider === 'openai') {
+                // OpenAI response format: { data: [{ id: "gpt-4", ... }] }
+                modelNames = ((data as any).data || [])
+                    .map((m: { id: string }) => m.id)
+                    .filter((name: string) => name.startsWith('gpt'));
+            } else {
+                // Gemini response format: { models: [{ name: "models/gemini-pro", ... }] }
+                modelNames = (data.models || [])
+                    .map((m: { name: string }) => m.name.replace(/^models\//, ''))
+                    .filter((name: string) => name.includes('gemini'));
+            }
             
             modelNames.forEach(name => allModelNames.add(name));
             // We only need one successful key to get the models.

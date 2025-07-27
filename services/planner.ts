@@ -1,5 +1,5 @@
 
-import { ai } from './geminiClient';
+import { ai } from './aiClient';
 import { getModel } from './models';
 import { settingsService } from './settingsService';
 import { parseJsonFromMarkdown } from './utils';

@@ -1,7 +1,8 @@
 import { settingsService } from './settingsService';
-import { ResearchMode, AgentRole } from '../types';
+import { apiKeyService } from './apiKeyService';
+import { ResearchMode, AgentRole, ApiProvider } from '../types';
 
-const defaultModels: Record<AgentRole, Record<ResearchMode, string>> = {
+const defaultGeminiModels: Record<AgentRole, Record<ResearchMode, string>> = {
     planner: {
         Balanced: 'gemini-2.5-pro',
         DeepDive: 'gemini-2.5-pro',
@@ -46,14 +47,61 @@ const defaultModels: Record<AgentRole, Record<ResearchMode, string>> = {
     }
 };
 
-export const getDefaultModelForRole = (role: AgentRole, mode: ResearchMode): string => {
+const defaultOpenAIModels: Record<AgentRole, Record<ResearchMode, string>> = {
+    planner: {
+        Balanced: 'gpt-4o',
+        DeepDive: 'gpt-4o',
+        Fast: 'gpt-4o-mini',
+        UltraFast: 'gpt-4o-mini',
+    },
+    searcher: {
+        Balanced: 'gpt-4o-mini',
+        DeepDive: 'gpt-4o',
+        Fast: 'gpt-4o-mini',
+        UltraFast: 'gpt-4o-mini',
+    },
+    outline: {
+        Balanced: 'gpt-4o-mini',
+        DeepDive: 'gpt-4o',
+        Fast: 'gpt-4o-mini',
+        UltraFast: 'gpt-4o-mini',
+    },
+    synthesizer: {
+        Balanced: 'gpt-4o-mini',
+        DeepDive: 'gpt-4o',
+        Fast: 'gpt-4o-mini',
+        UltraFast: 'gpt-4o-mini',
+    },
+    clarification: {
+        Balanced: 'gpt-4o-mini',
+        DeepDive: 'gpt-4o',
+        Fast: 'gpt-4o-mini',
+        UltraFast: 'gpt-4o-mini',
+    },
+    visualizer: {
+        Balanced: 'gpt-4o-mini',
+        DeepDive: 'gpt-4o',
+        Fast: 'gpt-4o-mini',
+        UltraFast: 'gpt-4o-mini',
+    },
+    roleAI: {
+        Balanced: 'gpt-4o-mini',
+        DeepDive: 'gpt-4o-mini',
+        Fast: 'gpt-4o-mini',
+        UltraFast: 'gpt-4o-mini',
+    }
+};
+
+export const getDefaultModelForRole = (role: AgentRole, mode: ResearchMode, provider?: ApiProvider): string => {
+    const selectedProvider = provider || apiKeyService.getApiProvider();
+    const defaultModels = selectedProvider === 'openai' ? defaultOpenAIModels : defaultGeminiModels;
     return defaultModels[role][mode];
 }
 
 /**
  * Gets the appropriate model for a given agent role and research mode.
  * It first checks for a user-defined override in settings, then falls back
- * to the default model for the selected mode.
+ * to the default model for the selected mode and API provider.
  * @param role The role of the agent (e.g., 'planner', 'searcher').
  * @param mode The current research mode (e.g., 'Balanced', 'DeepDive').
  * @returns The name of the model to be used.

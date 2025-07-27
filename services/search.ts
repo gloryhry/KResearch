@@ -1,5 +1,5 @@
-import { GenerateContentResponse } from "@google/genai";
-import { ai } from './geminiClient';
+import { GenerateContentResponse } from "../types";
+import { ai } from './aiClient';
 import { getModel } from './models';
 import { Citation, ResearchMode } from '../types';
 

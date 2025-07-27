@@ -1,3 +1,5 @@
+import { ApiProvider } from "../types";
+
 export class AllKeysFailedError extends Error {
     constructor(message: string) {
         super(message);
@@ -7,7 +9,9 @@ export class AllKeysFailedError extends Error {
 
 const API_KEYS_STORAGE_KEY = 'gemini_api_keys';
 const API_BASE_URL_STORAGE_KEY = 'gemini_api_base_url';
+const API_PROVIDER_STORAGE_KEY = 'api_provider';
 const DEFAULT_API_BASE_URL = 'https://generativelanguage.googleapis.com';
+const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com';
 
 
 class ApiKeyService {
@@ -15,6 +19,7 @@ class ApiKeyService {
     private readonly hasEnvKey: boolean;
     private currentKeyIndex = -1;
     private apiBaseUrl: string;
+    private apiProvider: ApiProvider;
 
     constructor() {
         const envKey = process.env.API_KEY;
@@ -34,9 +39,13 @@ class ApiKeyService {
 
         try {
             const storedBaseUrl = localStorage.getItem(API_BASE_URL_STORAGE_KEY);
-            this.apiBaseUrl = storedBaseUrl || DEFAULT_API_BASE_URL;
+            const storedProvider = localStorage.getItem(API_PROVIDER_STORAGE_KEY) as ApiProvider;
+            
+            this.apiProvider = storedProvider || 'gemini';
+            this.apiBaseUrl = storedBaseUrl || this.getDefaultBaseUrl();
         } catch (e) {
-            console.warn("Could not access localStorage. API base URL will not be persisted.");
+            console.warn("Could not access localStorage. API settings will not be persisted.");
+            this.apiProvider = 'gemini';
             this.apiBaseUrl = DEFAULT_API_BASE_URL;
         }
     }
@@ -47,6 +56,10 @@ class ApiKeyService {
             .split(/[\n,]+/)
             .map(k => k.trim())
             .filter(k => k.length > 0);
+    }
+
+    private getDefaultBaseUrl(): string {
+        return this.apiProvider === 'openai' ? DEFAULT_OPENAI_BASE_URL : DEFAULT_API_BASE_URL;
     }
 
     public hasKey(): boolean {
@@ -67,6 +80,10 @@ class ApiKeyService {
 
     public getApiBaseUrl(): string {
         return this.apiBaseUrl;
+    }
+
+    public getApiProvider(): ApiProvider {
+        return this.apiProvider;
     }
 
     public getNextApiKey(): string | undefined {
@@ -94,13 +111,33 @@ class ApiKeyService {
     }
 
     public setApiBaseUrl(url: string): void {
-        const newUrl = url.trim() || DEFAULT_API_BASE_URL;
+        const newUrl = url.trim() || this.getDefaultBaseUrl();
         this.apiBaseUrl = newUrl;
         try {
             if (this.isEnvKey()) return; // Do not save if env key is present
             localStorage.setItem(API_BASE_URL_STORAGE_KEY, newUrl);
         } catch (e) {
             console.warn("Could not access localStorage. API base URL will not be persisted.");
+        }
+    }
+
+    public setApiProvider(provider: ApiProvider): void {
+        this.apiProvider = provider;
+        
+        // Update base URL to default for the new provider if it's currently a default URL
+        const currentIsDefault = this.apiBaseUrl === DEFAULT_API_BASE_URL || this.apiBaseUrl === DEFAULT_OPENAI_BASE_URL;
+        if (currentIsDefault) {
+            this.apiBaseUrl = this.getDefaultBaseUrl();
+        }
+        
+        try {
+            if (this.isEnvKey()) return; // Do not save if env key is present
+            localStorage.setItem(API_PROVIDER_STORAGE_KEY, provider);
+            if (currentIsDefault) {
+                localStorage.setItem(API_BASE_URL_STORAGE_KEY, this.apiBaseUrl);
+            }
+        } catch (e) {
+            console.warn("Could not access localStorage. API provider will not be persisted.");
         }
     }
 

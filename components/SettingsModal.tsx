@@ -26,6 +26,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentM
   const [settings, setSettings] = useState(() => settingsService.getSettings());
   const [apiKey, setApiKey] = useState(() => apiKeyService.getApiKeysString());
   const [apiBaseUrl, setApiBaseUrl] = useState(() => apiKeyService.getApiBaseUrl());
+  const [apiProvider, setApiProvider] = useState(() => apiKeyService.getApiProvider());
   
   const addNotification = useNotification();
   
@@ -35,6 +36,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentM
       setSettings(settingsService.getSettings()); // Re-fetch on open
       setApiKey(apiKeyService.getApiKeysString());
       setApiBaseUrl(apiKeyService.getApiBaseUrl());
+      setApiProvider(apiKeyService.getApiProvider());
       const timer = setTimeout(() => setIsActive(true), 10);
       return () => clearTimeout(timer);
     } else {
@@ -51,11 +53,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentM
         if (!apiKeyService.isEnvKey()) {
             apiKeyService.setApiKeys(apiKey);
             apiKeyService.setApiBaseUrl(apiBaseUrl);
+            apiKeyService.setApiProvider(apiProvider);
         }
     }, 500); // Debounce for 500ms
 
     return () => clearTimeout(handler);
-  }, [settings, apiKey, apiBaseUrl, isActive]);
+  }, [settings, apiKey, apiBaseUrl, apiProvider, isActive]);
 
   const handleRestoreDefaults = () => {
     setSettings(DEFAULT_SETTINGS);
@@ -95,7 +98,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentM
           </nav>
 
           <main className="p-6 flex-grow overflow-y-auto h-[480px]">
-            {activeTab === 'api' && <ApiSettings apiKey={apiKey} setApiKey={setApiKey} apiBaseUrl={apiBaseUrl} setApiBaseUrl={setApiBaseUrl} />}
+            {activeTab === 'api' && <ApiSettings 
+                apiKey={apiKey} 
+                setApiKey={setApiKey} 
+                apiBaseUrl={apiBaseUrl} 
+                setApiBaseUrl={setApiBaseUrl}
+                apiProvider={apiProvider}
+                setApiProvider={setApiProvider}
+            />}
             {activeTab === 'models' && <ModelSettings settings={settings} setSettings={setSettings} currentMode={currentMode} />}
             {activeTab === 'params' && <ParamSettings settings={settings} setSettings={setSettings} />}
           </main>
