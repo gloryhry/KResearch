@@ -1,6 +1,10 @@
 # KResearch
 
+[View English version](README.md) | [查看中文版本](README_CN.md)
+
 > An advanced AI-powered deep research application that synthesizes information from numerous sources to generate comprehensive, well-documented reports on complex topics.
+
+*Read this document in [English](README.md) or [中文](README_CN.md). You can switch between language versions using the links above.*
 
 <!-- Badges -->
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
@@ -10,18 +14,28 @@
 
 ## Table of Contents
 
-- [About The Project](#about-the-project)
-  - [Built With](#built-with)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Docker](#docker)
-- [Configuration](#configuration)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
-- [Acknowledgements](#acknowledgements)
+- [KResearch](#kresearch)
+  - [Table of Contents](#table-of-contents)
+  - [About The Project](#about-the-project)
+    - [Built With](#built-with)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Usage](#usage)
+  - [Docker](#docker)
+    - [Option 1: Using Docker Hub](#option-1-using-docker-hub)
+    - [Option 2: Using GitHub Container Registry (GHCR)](#option-2-using-github-container-registry-ghcr)
+    - [Using docker-compose](#using-docker-compose)
+  - [Recent Enhancements](#recent-enhancements)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+    - [Configurable API Base URL](#configurable-api-base-url)
+  - [Configuration](#configuration)
+    - [Option 1: In-app Settings (Recommended for Docker)](#option-1-in-app-settings-recommended-for-docker)
+    - [Option 2: Environment File (For Local Development)](#option-2-environment-file-for-local-development)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Contact](#contact)
+  - [Acknowledgements](#acknowledgements)
 
 ## About The Project
 
@@ -86,7 +100,9 @@ Then navigate to the local address provided in your terminal (e.g., `http://loca
 
 ## Docker
 
-The quickest way to run KResearch is by using the pre-built Docker image from [Docker Hub](https://hub.docker.com/r/kuekhaoyang/kresearch).
+The quickest way to run KResearch is by using the pre-built Docker image. We provide images through both Docker Hub and GitHub Container Registry (GHCR).
+
+### Option 1: Using Docker Hub 
 
 1.  **Pull and run the container:**
     Execute this command in your terminal to download and start the application.
@@ -103,6 +119,70 @@ The quickest way to run KResearch is by using the pre-built Docker image from [D
 3.  **Configure API Key:**
     Once the application loads, click on the **Settings** icon and enter your Google Gemini API key. The key will be saved in your browser's local storage for future sessions.
 
+### Option 2: Using GitHub Container Registry (GHCR)
+
+Our GitHub Actions workflow automatically builds and pushes images to GHCR. You can use these images for the most up-to-date builds.
+
+1.  **Pull and run the container:**
+    Execute this command in your terminal to download and start the application.
+
+    ```sh
+    docker run -p 8080:80 --name kresearch ghcr.io/gloryhry/kresearch:latest
+    ```
+
+2.  **Access the application:**
+    Open your web browser and navigate to `http://localhost:8080`.
+
+### Using docker-compose
+
+We also provide a `docker-compose.yml` file for easier management. The file is configured to use the GHCR image by default.
+
+1.  **Run with docker-compose:**
+    Execute this command in your terminal to start the application.
+
+    ```sh
+    docker-compose up
+    ```
+
+2.  **Access the application:**
+    Open your web browser and navigate to `http://localhost:8080`.
+
+3.  **Configure API Key:**
+    Once the application loads, click on the **Settings** icon and enter your Google Gemini API key.
+
+## Recent Enhancements
+
+### GitHub Actions Workflow
+
+We've added a GitHub Actions workflow for automatically building and pushing Docker images to GitHub Container Registry (GHCR). This ensures that the latest version of the application is always available as a Docker image.
+
+The workflow is triggered on:
+- Pushes to the main branch
+- Creation of new releases
+
+This provides a reliable and automated way to deploy the latest version of the application.
+
+### Configurable API Base URL
+
+We've added support for configuring the API base URL through the `API_BASE_URL` environment variable. This allows you to:
+
+- Use a custom API endpoint for the Google Gemini service
+- Route requests through a proxy server
+- Configure different environments (development, staging, production) with different API endpoints
+
+To use this feature:
+
+1. Set the `API_BASE_URL` environment variable in your `.env` file:
+   ```dotenv
+   API_BASE_URL="https://your-custom-api-endpoint.com"
+   ```
+
+2. The application will automatically use this base URL for all API requests.
+
+3. In the settings UI, you'll see an indication when the base URL is configured by the host environment.
+
+This enhancement provides greater flexibility for deployment in different environments and supports advanced configurations such as API proxies or custom endpoints.
+
 ## Configuration
 
 The application requires a Google Gemini API key to function. You have two options for providing it:
@@ -118,6 +198,7 @@ For local development (`npm run dev`) or `docker-compose`, you can create a `.en
     ```dotenv
     # .env
     API_KEY="YOUR_GEMINI_API_KEY"
+    API_BASE_URL="https://your-custom-api-endpoint.com"
     ```
 
 ## Contributing

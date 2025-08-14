@@ -1,6 +1,13 @@
 services:
   web:
-    build: .
-    image: kresearch
+    # Use the Docker image built and pushed by GitHub Actions
+    # Image is hosted on GitHub Container Registry (GHCR)
+    image: ghcr.io/gloryhry/kresearch:latest
     ports:
       - "8080:80"
+    # Automatically restart the container if it fails
+    restart: unless-stopped
+    # Environment variables can be passed here
+    # environment:
+    #   - GEMINI_API_KEY=your_api_key_here
+    #   - API_BASE_URL=your_base_url_here
