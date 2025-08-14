@@ -115,6 +115,7 @@
   "translating": "Translating...",
   "geminiApiKeys": "Gemini API Key(s)",
   "apiKeysConfiguredByHost": "API Key(s) are configured by the application host.",
+  "baseURLConfiguredByHost": "API Endpoint are configured by the application host.",
   "apiKeysPlaceholder": "Enter your Gemini API Key(s), one per line.",
   "apiBaseUrl": "API Base URL (Optional)",
   "apiBaseUrlDesc": "Change this only if you need to use a proxy or a different API endpoint.",

@@ -11,9 +11,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
     visualizer: null,
   },
   researchParams: {
-    minCycles: 7,
-    maxCycles: 20,
-    maxDebateRounds: 20,
+    minCycles: 3,
+    maxCycles: 10,
+    maxDebateRounds: 10,
   },
 };
 

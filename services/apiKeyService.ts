@@ -13,31 +13,32 @@ const DEFAULT_API_BASE_URL = 'https://generativelanguage.googleapis.com';
 class ApiKeyService {
     private userApiKeys: string[] = [];
     private readonly hasEnvKey: boolean;
+    private readonly hasEnvBaseUrl: boolean;
     private currentKeyIndex = -1;
     private apiBaseUrl: string;
 
     constructor() {
         const envKey = process.env.API_KEY;
+        const envBaseUrl = process.env.API_BASE_URL;
+
         this.hasEnvKey = !!envKey && envKey.length > 0;
+        this.hasEnvBaseUrl = !!envBaseUrl && envBaseUrl.length > 0;
 
         if (this.hasEnvKey) {
             this.userApiKeys = this.parseKeys(envKey);
+            this.apiBaseUrl = this.hasEnvBaseUrl ? envBaseUrl : DEFAULT_API_BASE_URL;
         } else {
             try {
                 const storedKeys = localStorage.getItem(API_KEYS_STORAGE_KEY);
                 this.userApiKeys = this.parseKeys(storedKeys || '');
-            } catch (e) {
-                console.warn("Could not access localStorage. API keys will not be persisted.");
-                this.userApiKeys = [];
-            }
-        }
 
-        try {
-            const storedBaseUrl = localStorage.getItem(API_BASE_URL_STORAGE_KEY);
-            this.apiBaseUrl = storedBaseUrl || DEFAULT_API_BASE_URL;
-        } catch (e) {
-            console.warn("Could not access localStorage. API base URL will not be persisted.");
-            this.apiBaseUrl = DEFAULT_API_BASE_URL;
+                const storedBaseUrl = localStorage.getItem(API_BASE_URL_STORAGE_KEY);
+                this.apiBaseUrl = storedBaseUrl || DEFAULT_API_BASE_URL;
+            } catch (e) {
+                console.warn("Could not access localStorage. API keys and base URL will not be persisted.");
+                this.userApiKeys = [];
+                this.apiBaseUrl = DEFAULT_API_BASE_URL;
+            }
         }
     }
     
@@ -53,8 +54,12 @@ class ApiKeyService {
         return this.getApiKeys().length > 0;
     }
 
-    public isEnvKey(): boolean {
+    public isEnvKeyConfigured(): boolean {
         return this.hasEnvKey;
+    }
+
+    public isEnvBaseUrlConfigured(): boolean {
+        return this.hasEnvBaseUrl;
     }
     
     public getApiKeys(): string[] {
@@ -97,7 +102,7 @@ class ApiKeyService {
         const newUrl = url.trim() || DEFAULT_API_BASE_URL;
         this.apiBaseUrl = newUrl;
         try {
-            if (this.isEnvKey()) return; // Do not save if env key is present
+            if (this.isEnvKeyConfigured()) return; // Do not save if env key is present
             localStorage.setItem(API_BASE_URL_STORAGE_KEY, newUrl);
         } catch (e) {
             console.warn("Could not access localStorage. API base URL will not be persisted.");

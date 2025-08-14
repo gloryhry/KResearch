@@ -25,7 +25,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentM
   const [isActive, setIsActive] = useState(false);
   const [settings, setSettings] = useState(() => settingsService.getSettings());
   const [apiKey, setApiKey] = useState(() => apiKeyService.getApiKeysString());
-  const [apiBaseUrl, setApiBaseUrl] = useState(() => apiKeyService.getApiBaseUrl());
+  const [apiBaseUrl, setApiBaseUrl] = useState('');
   
   const addNotification = useNotification();
   
@@ -48,7 +48,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentM
 
     const handler = setTimeout(() => {
         settingsService.save(settings);
-        if (!apiKeyService.isEnvKey()) {
+        if (!apiKeyService.isEnvKeyConfigured()) {
             apiKeyService.setApiKeys(apiKey);
             apiKeyService.setApiBaseUrl(apiBaseUrl);
         }
@@ -60,7 +60,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentM
   const handleRestoreDefaults = () => {
     setSettings(DEFAULT_SETTINGS);
     // Let the useEffect handle saving the updated state
-    setApiBaseUrl('https://generativelanguage.googleapis.com');
+    if (!apiKeyService.isEnvBaseUrlConfigured()) {
+        setApiBaseUrl('https://generativelanguage.googleapis.com');
+    }
     addNotification({type: 'info', title: t('defaultsLoadedTitle'), message: t('defaultsLoadedMessage')});
   };
 

@@ -115,6 +115,7 @@
   "translating": "翻译中...",
   "geminiApiKeys": "Gemini API 密钥",
   "apiKeysConfiguredByHost": "API 密钥由应用主机配置。",
+  "baseURLConfiguredByHost": "API 端点由应用主机配置。",
   "apiKeysPlaceholder": "输入您的 Gemini API 密钥，每行一个。",
   "apiBaseUrl": "API 基地址 (可选)",
   "apiBaseUrlDesc": "仅在需要使用代理或不同 API 端点时更改此项。",
